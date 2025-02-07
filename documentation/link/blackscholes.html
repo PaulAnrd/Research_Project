@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>link</title>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true,   theme: 'neutral', });
+    </script>
+    <style>
+        body {
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        h1 {
+            margin: 20px 0;
+            font-size: 2em;
+            color: #333;
+        }
+        .mermaid {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Black Scholes compare to a neural network</h1>
+   
+    <div class="mermaid">
+        graph LR
+            subgraph Black-Scholes
+                BS1["$$St$$ : Current price of the underlying asset"]
+                BS2["$$\sigma$$ : Volatility of the underlying asset"]
+                BS3["$$K$$ : Strike price of the option"]
+                BS4["$$t$$ : Time to expiration (in years)"]
+                BS5["$$r$$ : Risk-free interest rate"]
+                BS6["$$\frac{\partial V}{\partial t} + \frac{1}{2} \sigma^2 S^2 \frac{\partial^2 V}{\partial S^2} + r S \frac{\partial V}{\partial S} - r V = 0$$"]
+
+                BS1-->ANN_Option_Price_model
+                BS2-->ANN_Option_Price_model
+                BS3-->ANN_Option_Price_model
+                BS4-->ANN_Option_Price_model
+                BS5-->ANN_Option_Price_model
+
+                BS1-->BS6
+                BS2-->BS6
+                BS3-->BS6
+                BS4-->BS6
+                BS5-->BS6
+            end       
+            BS6-->Option_price
+            ANN_Option_Price_model-->Option_price
+
+
+            subgraph volatility
+                Inputs-->ANN_Volatility_model--Volatility-->BS2
+            end
+
+
+    </div>
+
+
+</body>
+</html>

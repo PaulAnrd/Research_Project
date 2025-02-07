@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Management</title>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true ,   theme: 'neutral', });
+    </script>
+    <style>
+        body {
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        h1 {
+            margin: 20px 0;
+            font-size: 2em;
+            color: #333;
+        }
+        .mermaid {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    
+
+    <h1>Stucture</h1>
+    <div class="mermaid">
+        graph LR
+
+            dataPreprocessing.ipynb
+            dataAnalysis.ipynb
+            subgraph ANN
+                NNVolatilityLSTM.ipynb
+                optionPricing.ipynb
+            end
+            resultAnalysis.ipynb
+
+            subgraph data
+                CPI.csv
+                daily_volume_2024.csv
+                GDP.csv
+                Inflation.csv
+                Market_Yield.csv
+                OptionsEODCalcs_2016.csv
+                OptionsEODQuotes_2016.csv
+                OptionsTrades_2016.csv
+                OptionsTradesCalcs_2016.csv
+                sp500_daily.csv
+                sp500_minutes.csv
+            end
+
+            subgraph processData
+                dataV.csv
+                dataO.csv
+            end
+
+            CPI.csv-->dataPreprocessing.ipynb
+            daily_volume_2024.csv-->dataPreprocessing.ipynb
+            GDP.csv-->dataPreprocessing.ipynb
+            Inflation.csv-->dataPreprocessing.ipynb
+            Market_Yield.csv-->dataPreprocessing.ipynb
+            OptionsEODCalcs_2016.csv-->dataPreprocessing.ipynb
+            OptionsEODQuotes_2016.csv-->dataPreprocessing.ipynb
+            OptionsTrades_2016.csv-->dataPreprocessing.ipynb
+            OptionsTradesCalcs_2016.csv-->dataPreprocessing.ipynb
+            sp500_daily.csv-->dataPreprocessing.ipynb
+            sp500_minutes.csv-->dataPreprocessing.ipynb
+
+
+            dataPreprocessing.ipynb-->dataV.csv
+            dataPreprocessing.ipynb-->dataO.csv
+
+            dataV.csv-->dataAnalysis.ipynb
+            dataO.csv-->dataAnalysis.ipynb
+
+            dataV.csv-->NNVolatilityLSTM.ipynb--Volatility-->optionPricing.ipynb
+            dataO.csv-->optionPricing.ipynb-->result.csv
+
+            dataO.csv-->BlackScholesPrediction.ipynb-->result.csv-->resultAnalysis.ipynb
+
+
+
+
+
+            click BlackScholesPrediction.ipynb "link/blackscholes.html"
+            click dataV.csv "../data/dataV.csv"
+    </div>
+
+</body>
+</html>

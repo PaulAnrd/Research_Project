@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Volatility</title>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+    <style>
+        body {
+            justify-content: center;
+            align-items: center;
+            background-color: #f9f9f9;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        h1 {
+            margin: 20px 0;
+            font-size: 2em;
+            color: #333;
+        }
+        .mermaid {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Volatility parameters </h1>
+    <div class="mermaid">
+        graph LR
+
+        Volatility
+
+        Volatility-->Historical_volatility
+        Volatility-->Implied_volatility
+        Volatility-->Trading_day
+        Volatility-->Economics_indicators
+        Volatility-->Macroeconomics_events
+
+        Historical_volatility-->EWMA
+        Historical_volatility-->Garman_Klass
+        Historical_volatility-->Parkinson
+        Historical_volatility-->Roger_Satchell
+        Historical_volatility-->Yang_Zhang
+        Historical_volatility-->ARCH
+        Historical_volatility-->GARCH
+        Historical_volatility-->EGARCH
+        Implied_volatility-->Black_Scholes
+        Implied_volatility-->Merton_Jump_diffusion
+        Implied_volatility-->Stochastic
+        Implied_volatility-->SABR
+        Implied_volatility-->Volatility_Gamma
+        Implied_volatility-->Surface_models
+        Implied_volatility-->Smiles_models
+        Trading_day-->High
+        Trading_day-->Low
+        Trading_day-->Open
+        Trading_day-->Close
+        Trading_day-->Adj_Close
+        Trading_day-->Volume
+        Trading_day-->Returns
+        Economics_indicators-->Gross_domestic_product_GDP
+        Economics_indicators-->GDP_evolution
+        Economics_indicators-->Government_bond_yield
+        Economics_indicators-->Inflation
+        Economics_indicators-->Unemployment
+        Economics_indicators-->Business_report
+        Economics_indicators-->Interest_rates
+        Economics_indicators-->Consumer_price_index_CPI
+        Macroeconomics_events-->Politics_announcements
+        Macroeconomics_events-->Weather_Climate
+        Macroeconomics_events-->Company_announcement
+        Macroeconomics_events-->Elections
+        Macroeconomics_events-->Conflicts
+        Macroeconomics_events-->Regulatory_authorities_announcements
+        Macroeconomics_events-->News_article
+        Macroeconomics_events-->Research
+        Macroeconomics_events-->Date
+
+        style Inflation fill:#1e7c00,stroke:#fff,color:#fff
+        style Consumer_price_index_CPI fill:#1e7c00,stroke:#fff,color:#fff
+        style Open fill:#1e7c00,stroke:#fff,color:#fff
+        style High fill:#1e7c00,stroke:#fff,color:#fff
+        style Low fill:#1e7c00,stroke:#fff,color:#fff
+        style Close fill:#1e7c00,stroke:#fff,color:#fff
+        style Adj_Close fill:#1e7c00,stroke:#fff,color:#fff
+        style Volume fill:#1e7c00,stroke:#fff,color:#fff
+        style Returns fill:#1e7c00,stroke:#fff,color:#fff
+        style EWMA fill:#1e7c00,stroke:#fff,color:#fff
+        style GARCH fill:#1e7c00,stroke:#fff,color:#fff
+        style EGARCH fill:#1e7c00,stroke:#fff,color:#fff
+        style Roger_Satchell fill:#1e7c00,stroke:#fff,color:#fff
+        style Government_bond_yield fill:#1e7c00,stroke:#fff,color:#fff
+        style Garman_Klass fill:#1e7c00,stroke:#fff,color:#fff
+        style Parkinson fill:#1e7c00,stroke:#fff,color:#fff
+        style Yang_Zhang fill:#1e7c00,stroke:#fff,color:#fff
+        style Gross_domestic_product_GDP fill:#1e7c00,stroke:#fff,color:#fff
+
+
+    </div>
+
+
+
+</body>
+</html>

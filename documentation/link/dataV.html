@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Table Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f4f4f4;
+        }
+    </style>
+</head>
+<body>
+    <h1>CSV Table Viewer</h1>
+    <div id="tableContainer"></div>
+
+    <script>
+        fetch('../../data/dataV.csv')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok ' + response.statusText);
+                }
+                return response.text();
+            })
+            .then(csvContent => displayCSVTable(csvContent))
+            .catch(error => {
+                const tableContainer = document.getElementById('tableContainer');
+                tableContainer.innerHTML = `<p style="color: red;">Error loading CSV: ${error.message}</p>`;
+            });
+
+        function displayCSVTable(csvContent) {
+            const rows = csvContent.split('\n');
+            const table = document.createElement('table');
+
+            rows.forEach((row, rowIndex) => {
+                const tr = document.createElement('tr');
+                const cells = row.split(',');
+
+                cells.forEach(cell => {
+                    const cellElement = rowIndex === 0 ? document.createElement('th') : document.createElement('td');
+                    cellElement.textContent = cell.trim();
+                    tr.appendChild(cellElement);
+                });
+
+                table.appendChild(tr);
+            });
+
+            const tableContainer = document.getElementById('tableContainer');
+            tableContainer.innerHTML = ''; // Clear previous content
+            tableContainer.appendChild(table);
+        }
+    </script>
+</body>
+</html>
