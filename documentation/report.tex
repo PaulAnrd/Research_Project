@@ -37,7 +37,7 @@ February 3, 2025
 
 \subsection*{What Is New?}
 \begin{itemize}
-    \item Created and trained a model for option pricing, using Black-Scholes parameters to target option prices.
+    \item Created and trained a ANN MLP model for option pricing, using Black-Scholes parameters to target option prices.
             
 \begin{figure}[H]
   \centering
@@ -58,13 +58,81 @@ February 3, 2025
             \end{center}
             
     \item Started to build a custom LSTM model with NumPy. For now, I think Python allows better flexibility and development time than C++, while still maintaining decent performance using only NumPy. 
-    I want the model to be compatible with TensorFlow formatting for easier use. It can be found in \href{https://github.com/PaulAnrd/Research_Project}{code/models/annModels.py}.
+    I want the model to be compatible with TensorFlow formatting for easier use.
 \end{itemize}
 
 \subsection*{What Is Next?}
 \begin{itemize}
-    \item Finish the custom model.
+    \item Finish the custom MLP model.
     \item Outliers suppression 
 \end{itemize}
+
+\newpage
+\section*{Iteration 2}
+\begin{flushright}
+February 10, 2025
+\end{flushright}
+\hrule
+\vspace{0.2in}
+\subsection*{What Is New?}
+\begin{itemize}
+  \item First principle implementation of artificail neural network \textbf{multilayer perceptron}. Can be found here : /code\_/models/annModels.py
+  \item \begin{verbatim}
+  mlp = am.MLP(n_input=22, n_hidden1=64, n_hidden2=32, n_output=1)
+  epochs = 5000
+  learning_rate = 0.001
+  
+  #Training
+  history = mlp.train(X_train_normalized, y_train, epochs, learning_rate)
+  
+  # Predict
+  train_preds = mlp.forward(X_train_normalized)
+  y_pred = mlp.forward(X_test_normalized)
+
+  #---
+  Final Training Loss: 0.41194406219492513
+  Final Test Loss: 0.41460153925356924
+  \end{verbatim}
+  
+  \begin{center}
+    \includegraphics[width=0.8\textwidth]{img/custom_model_perf.png}
+    \end{center}
+\end{itemize}
+\subsection*{What Is Next?}
+\begin{itemize}
+  \item Paramater optimization for custom model implementation ?
+  \item Would a Transformer work better ? - \href{https://en.wikipedia.org/wiki/Transformer_(deep_learning_architecture)}{Wiki Transformer}
+  \begin{itemize}
+    \item Very likely, However, to get a working transformer model, the data volume is much more advanced than we currently use.
+  \end{itemize}
+\end{itemize}
+
+\newpage
+\section*{Iteration 3}
+\begin{flushright}
+February 17, 2025
+\end{flushright}
+\hrule
+\vspace{0.2in}
+\subsection*{What Is New?}
+\begin{itemize}
+  \item Finnish data gathering with scipt :/code\_/tools/getData.ipynb, all the assets data are gather in /data/stocks (around 200 symbols)
+  \item Transformer implementation in progress
+  \item Benchmark against LSTM model
+  \item Paramater optimization for custom model implementation ?
+\end{itemize}
+
+\subsection*{What Is Next?}
+\begin{itemize}
+  \item 
+\end{itemize}
+
+
+
+
+
+
+
+
 
 \end{document}
