@@ -188,4 +188,36 @@ March 3, 2025
 
 
 
+
+\newpage
+\section*{Iteration 6}
+\begin{flushright}
+March 10, 2025
+\end{flushright}
+\hrule
+\vspace{0.2in}
+\subsection*{What Is New?}
+\begin{itemize}
+  \item The volatility time series have some properties as for exemple \textbf{volatility clustering}. It implied that huge amplitude volatility periode are follow by small volatility changes and back to huge periode. The default LSTM network isn't aware of that so we can try to implement this in the forget get to keep this informaiton inside the network.
+  For instance we can propose a solution like this
+  \[
+  F_t = \sigma \left( W_f \cdot [H_{t-1}, X_t] + b_f \mathbf{- k \sigma_t} \right)
+  \]
+
+Where the new term $ k \sigma_t$ represente the a contante $k$ that is a leanring parameter to scale the impact on the network
+and $\sigma_t$ that is the volatility estimation value.
+
+\end{itemize}
+
+
+\subsection*{What Is Next?}
+\begin{itemize} 
+  \item Implementaiton
+  \item Benchmark against default LSTM and Black-Scholes
+ 
+\end{itemize}
+
+
+
+
 \end{document}
