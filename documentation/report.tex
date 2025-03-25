@@ -5,6 +5,7 @@
 \usepackage{graphicx}
 \usepackage{tikz}
 \usepackage{xcolor}
+\usepackage{booktabs} 
 \usepackage{hyperref}
 \usepackage{float} 
 \usetikzlibrary{shapes.geometric, arrows, positioning}
@@ -198,7 +199,7 @@ March 10, 2025
 \vspace{0.2in}
 \subsection*{What Is New?}
 \begin{itemize}
-  \item The volatility time series have some properties as for exemple \textbf{volatility clustering}. It implied that huge amplitude volatility periode are follow by small volatility changes and back to huge periode. The default LSTM network isn't aware of that so we can try to implement this in the forget get to keep this informaiton inside the network.
+  \item The volatility time series have some properties as for exemple \textbf{volatility clustering}. It implied that huge amplitude volatility periode are follow by small volatility changes and back to huge periode. The default LSTM network isn't aware of that so we can try to implement this in the forget gate to keep this informaiton inside the network.
   For instance we can propose a solution like this
   \[
   F_t = \sigma \left( W_f \cdot [H_{t-1}, X_t] + b_f \mathbf{- k \sigma_t} \right)
@@ -214,8 +215,75 @@ and $\sigma_t$ that is the volatility estimation value.
 \begin{itemize} 
   \item Implementaiton
   \item Benchmark against default LSTM and Black-Scholes
+  \item Litterature
  
 \end{itemize}
+
+
+
+
+\newpage
+\section*{Iteration 7}
+\begin{flushright}
+March 24, 2025
+\end{flushright}
+\hrule
+\vspace{0.2in}
+
+\subsection*{Litterature review}
+\begin{enumerate}
+  \item AT-LSTM: An Attention-based LSTM Model for Financial 
+  Time Series Prediction\\
+  \emph{Adding and attention layer to LSTM model. Appliyng weight to input feature thanks to an attention layer. Then, in a second stage, the attention model select all relevant features for LSTM input model.
+  \begin{center}
+    \begin{tabular}{c | c}
+    \multicolumn{2}{c}{MAPE on DJIA} \\
+    \hline
+    LSTM & 0.00625 \\
+    \hline
+    AT-LSTM & 0.00486 \\
+    %\hline
+    \end{tabular}
+  \end{center}
+  }
+  \item Improved Financial Predicting Method Based on Time Series Long Short-Term Memory Algorithm\\
+  \emph{Automated capital prediction strategy, first by analysing the fluctuation and tail risk. Then by use ARIMA and Prophet models. Finally time series modeleing of the wavelet LSTM for a two part analysis of the linear separated wavelet and non-linear embedded wavelet to predict volatility. 
+  }
+  \begin{center}
+    \includegraphics[width=0.7\textwidth]{img/res_lit_paper_1.png}
+  \end{center}
+ 
+  \item Prediction of Financial Time Series Based on LSTM Using Wavelet Transform and Singular Spectrum Analysis\\
+  \emph{Imporove LSTM prediction capabilities by using data denoising methods including wavelet transformation (WT) and singular spectrum analysis (SSA) on the closing DJIA, divided in short, meduim and long term time periode.
+  The LSTM data denoising performe better than raw data for data prediciton on all tree time periodes.
+  }
+  \begin{center}
+    \includegraphics[width=0.7\textwidth]{img/res_lit_paper_2.png}
+  \end{center}
+
+
+
+  \item Black-Scholes-Artificial Neural Network : A novel option princing model\\
+  \emph{Comparaison of multiple option pricing model and intruduction of a new model call BSANN, a basic ANN MLP model in [11-15-1] performing better than tranditionnal methodes.}
+
+  \item Volatility forcasting using deep neural network with time-series feature embedding\\
+  \emph{Propose a hybrid deep neural network model (HDNN). Encoding one-dimensionnal time-series data into two-dimensionnal GAF images to use a CNN with 2D concolutions layers, then performe feature embeding  and dense layers regression to predict the volatility}
+  \begin{center}
+    \includegraphics[width=0.6\textwidth]{img/res_lit_paper_3.png}
+  \end{center}
+
+
+  \item Volatility forcasting using deep recurrent neural networks as GARCH models\\
+  \emph{Propose new method to predict volatility time series by using a combination of GARCH and and deep neural network. Also introduce a mehanisme to identifiy ideal sliding windows side for volatilty. With evaluation of GRU, LSTM, BiLSTM}
+  \begin{center}
+    \includegraphics[width=0.7\textwidth]{img/res_lit_paper_4.png}
+  \end{center}
+
+\end{enumerate}
+
+
+
+
 
 
 
