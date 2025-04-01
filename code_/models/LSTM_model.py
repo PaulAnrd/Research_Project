@@ -145,15 +145,10 @@ class LSTM:
             if epoch % 10 == 0:
                 print(f'Epoch {epoch}, Loss: {loss}')
 
-# Example usage
-np.random.seed(0)
-input_size = 3
-hidden_size = 2
-output_size = 1
 
-# Create some dummy data
-X = [np.random.randn(input_size) for _ in range(10)]
-targets = [np.random.randn(output_size) for _ in range(10)]
 
-lstm = LSTM(input_size, hidden_size, output_size)
-lstm.train(X, targets, learning_rate=0.01, epochs=100)
+
+
+#------------------------------------------------------------------------------
+
+
