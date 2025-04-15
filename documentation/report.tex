@@ -377,12 +377,31 @@ April 7, 2025
 Implementation of static sliding windows on the volatility time serie 
   \begin{center}
   \includegraphics[width=0.8\textwidth]{img/win_err.png}
-  \end{center}
-  Best window size currently is 5 days (a trading week) with MSE estimator
+  \end{center} %changer la vol en close/returns
+  Best window size given by the EMD is currently 5 days (a trading week) with MSE estimator.
 
 
 \subsubsection*{Improvement - Dynamic sliding window}
-From the following 
+
+
+
+
+\newpage
+\section*{Iteration 10}
+\begin{flushright}
+April 14, 2025
+\end{flushright}
+\hrule
+\vspace{0.2in}
+
+\subsection*{LSTM}
+
+Need to improve LSTM performance, not as good as TensorFlow implementation.
+
+\subsection*{Sliding Window}
+The dynamic sliding vector may cause a problem with the LSTM vectore size.
+
+
 
 
 \end{document}
