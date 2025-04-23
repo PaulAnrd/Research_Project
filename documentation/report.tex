@@ -8,6 +8,9 @@
 \usepackage{booktabs} 
 \usepackage{hyperref}
 \usepackage{float} 
+\usepackage{enumitem}
+
+
 \usetikzlibrary{shapes.geometric, arrows, positioning}
 \geometry{margin=1in}
 
@@ -395,13 +398,119 @@ April 14, 2025
 \vspace{0.2in}
 
 \subsection*{LSTM}
-
 Need to improve LSTM performance, not as good as TensorFlow implementation.
 
 \subsection*{Sliding Window}
 The dynamic sliding vector may cause a problem with the LSTM vectore size.
 
 
+
+\newpage
+\section*{Iteration 11}
+\begin{flushright}
+April 21, 2025
+\end{flushright}
+\hrule
+\vspace{0.2in}
+
+From the paper : \href{https://link.springer.com/content/pdf/10.1007/s00180-023-01349-1.pdf}{Volatility forcasting using deep recurrent neural networks as GARCH models}\\
+
+
+\begin{enumerate}
+  \item Decompose the series (returns $R_t$ and volatilities $V_t$) into $K$ intrinsic mode functions (IMFs) via EMD:
+  \[
+    R_t \xrightarrow{\mathrm{EMD}} \bigl\{c_i^R(t)\bigr\}_{i=1}^K,
+    \qquad
+    V_t \xrightarrow{\mathrm{EMD}} \bigl\{c_i^V(t)\bigr\}_{i=1}^K.
+  \]
+
+  \item Hilbert‐transform each IMF to get its instantaneous phase $\phi_i(t)$, then frequency
+  \[
+    f_i(t)
+    = \frac{1}{2\pi}\,\frac{\mathrm{d}}{\mathrm{d}t}\,\phi_i(t),
+  \]
+  and thus instantaneous period
+  \[
+    p_i(t) = \frac{1}{f_i(t)}.
+  \]
+
+  \item Energy‐weight, by computing each IMF’s average energy over the sample:
+  \[
+    E_i = \frac{1}{T} \sum_{t=1}^{T} \bigl[c_i(t)\bigr]^2.
+  \]
+
+  \item Weighted average period at time $t$:
+  \[
+    p^R(t)
+    = \frac{\sum_{i=1}^K E_i^R\,p_i^R(t)}{\sum_{i=1}^K E_i^R},
+    \qquad
+    p^V(t)
+    = \frac{\sum_{i=1}^K E_i^V\,p_i^V(t)}{\sum_{i=1}^K E_i^V}.
+  \]
+
+  \item Combine returns and vol by taking the max (as the paper does) and admit $\tau $ as your ideal window size :
+  \[
+    \tau(t) \;=\; \max\bigl\{\,p^R(t),\,p^V(t)\bigr\}.
+  \]
+\end{enumerate}
+
+Another approach could be to 
+\bigskip
+
+\begin{enumerate}
+  \item Compute the energie based on instantaneous amplitudes from each IMF via the Hilbert transform
+  \[
+    e_R(t) \;=\; \sum_{i=1}^K \bigl\lvert \mathcal{H}\{c_i^R(t)\}\bigr\rvert^2,
+    \quad
+    e_V(t) \;=\; \sum_{i=1}^K \bigl\lvert \mathcal{H}\{c_i^V(t)\}\bigr\rvert^2.
+  \]
+
+  \item Normalize and forme energy‐based weights :
+  \[
+    w_R(t) \;=\; \frac{e_R(t)}{e_R(t) + e_V(t)},
+    \quad
+    w_V(t) \;=\; \frac{e_V(t)}{e_R(t) + e_V(t)}% \;=\; 1 - w_R(t).
+  \]
+
+  \item Weighted average of periods :
+  \[
+    P_{\mathrm{blend}}(t)
+      \;=\;
+    w_R(t)\,P^R(t)\;+\;w_V(t)\,P^V(t),
+  \]
+  then round up to get an integer window length:
+  \[
+    \tau_{\mathrm{blend}}(t)
+      \;=\;
+    \bigl\lceil P_{\mathrm{blend}}(t)\bigr\rceil.
+  \]
+\end{enumerate}
+
+
+However, I am concerned that this solution limits performance by providing a smaller average window size than the previous maximization function. As a result, it may miss periodic information that the original maximization approach captured effectively.
+\bigskip
+
+With an LSTM model, a problem arises with a changing sliding window size: the dynamic changes of the input vector. Even though we can force the vector to change its size at each time point, the long-term memory information will be retained. One solution could be to modify the forget gate to enable less information retaining when the size of the window is smaller.
+
+
+\begin{center}
+\includegraphics[width=0.9\textwidth]{img/LSTM_archi.jpg}
+\end{center}
+
+
+
+
+\vfill
+Related papers :
+\begin{itemize}
+  \item \href{https://epjnonlinearbiomedphys.springeropen.com/articles/10.1140/epjnbp/s40366-014-0014-9}{Sliding Window Empirical Mode
+  Decomposition -its performance and quality}
+  \item \href{https://www.mdpi.com/1996-1073/10/8/1168}{Short-Term Load Forecasting Using EMD-LSTM Neural Networks with a Xgboost Algorithm for
+  Feature Importance Evaluation}
+  \item \href{https://pdf.sciencedirectassets.com/271429/1-s2.0-S0306261924X00185/1-s2.0-S0306261924014405/main.pdf?X-Amz-Security-Token=IQoJb3JpZ2luX2VjEGwaCXVzLWVhc3QtMSJHMEUCIFoWqAhbiinl3ix6AR1mW3B5OcqVELeCM%2BvoGz0MmZW7AiEAmtvTdh2uINhXrEN%2BqF0wBYA%2Bx9ZCdChnl57cjz%2FGGJ4qvAUI9P%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FARAFGgwwNTkwMDM1NDY4NjUiDCatv51EsGNidT4vliqQBUSLAip2qgeU1wJI2NGmfJiBQ5zsCBjRD9G01%2B68Cxo3RDBiXA1LbdqT%2FMoA5EE%2Fk7dhrHLx0X1WO%2FsP2iUC7VadvgjRxJYlSAIt4qjui4k1s2vrSsv%2BIXkfFeNWSa0DPXs3exM6dJl43885vAW7%2FLTusAthmRAfdG3YuqJh9XxKq12xbrSePgAVCDX4OLNOEamtmNGdVKljJZYsCeO%2Bc87cq16UNyQDU3LQhfrcgPbuVhScdQq12WWHhlRETApEdg%2F7Tu5%2BquikxuixIavnj%2FCINDBQcpm8qE%2FSdgtA5T4yBsRrUbqjGAUWaVHXVnYqZVErq6jI1zWLYrpRqaL6V1O7gD0IcJ1MyEEXyV9fXe0M206RvFt257nbGVsySLbdCLlBUnKIGEEegCwbveiEDxwd8SK3cU7J%2Bqo6aeKd9zzsyI29YUF4Tf2iph7X3y0D3P4Gxgr3BR7OE3Q5i9nR3PDiFVAosqhk9mYwBpIw8ISAUih%2FFOsPB2bRhkiX23Vg8KXYgtuQ3qLWqNOAyMTPTlxz8WfwDbP0Brku2A%2Bq2iDhe8z3C%2BxfCOi%2FMw9YLR%2BTnGANdW0Q%2BuPDHJw61Ps3cRDvbPYjHWJH2n0tm6uu1si8QV6Pk%2FfrKNOsLCS93y%2FVyUmDCWoBQE1nogPtflYnzTHFYutVJKwCUJcEJ7AgJLY9Dc4rRu7BAxwDtGnWPBxrD7JddmL6Mj%2B1pRJxAmwGXxruc4W6ddS8N5fK7%2FVlNjbTPD%2F1BlIbeYn6KEx%2BfcAWMQtmgZqqJ7NfrMGiH%2B0nvK1qx7imCpF58G8Le86559kLHWmMTbWT5DIGF0p0968MQkxNoy2F65in75eFeSIDVhthkJ%2B0tMVfQTHLClI4gqFFML37pMAGOrEB4sLhJQY7WAhiqluDhgDpk7Mp0Rp6pq6xhpDqYoq9kXjOjDOpAPiVyJe%2FHLIs9g0qtCSfILnPYNWUK%2FOWjSL7e%2BWIBZ83v9hW0drnFW2MNNaoINarusPXKyw1LJlujqckKlqcuTrj9X9hhoHlH%2F4vjOtpjd19wdxKMiIY08Z%2F8o1tZstuMbFKOm%2FI6jL2KOZXHSeHOKpdN0L6U3DKqDVYOUgGP94xCUmR6VtGwou3JMB3&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250423T195138Z&X-Amz-SignedHeaders=host&X-Amz-Expires=299&X-Amz-Credential=ASIAQ3PHCVTYYJXNQUA7%2F20250423%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Signature=171ce7e9ef2a61c822ab5e836113a04ac881d24638bfcafecc422ebef0b35a65&hash=2de7ac10a381a46f6e2ea4319ed1f57aa7d11df62c61029e5a3f907fa2db6fa0&host=68042c943591013ac2b2430a89b270f6af2c76d8dfd086a07176afe7c76c2c61&pii=S0306261924014405&tid=spdf-51a7ca99-a11b-47ef-9468-cac492f2964d&sid=85df26183780b241fd383b000bed50d4cd65gxrqa&type=client&tsoh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&rh=d3d3LnNjaWVuY2VkaXJlY3QuY29t&ua=11105f575606005558&rr=934fe58fb82afa06&cc=us}{An attention-based multi-input LSTM with sliding window-based two-stage
+decomposition for wind speed forecasting}
+  
+\end{itemize}
 
 
 \end{document}
