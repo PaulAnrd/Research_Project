@@ -421,7 +421,7 @@ From the paper : \href{https://link.springer.com/content/pdf/10.1007/s00180-023-
   \[
     R_t \xrightarrow{\mathrm{EMD}} \bigl\{c_i^R(t)\bigr\}_{i=1}^K,
     \qquad
-    V_t \xrightarrow{\mathrm{EMD}} \bigl\{c_i^V(t)\bigr\}_{i=1}^K.
+    V_t \xrightarrow{\mathrm{EMD}} \bigl\{c_i^V(t)\bigr\}_{i=1}^K
   \]
 
   \item Hilbert‐transform each IMF to get its instantaneous phase $\phi_i(t)$, then frequency
@@ -431,26 +431,26 @@ From the paper : \href{https://link.springer.com/content/pdf/10.1007/s00180-023-
   \]
   and thus instantaneous period
   \[
-    p_i(t) = \frac{1}{f_i(t)}.
+    p_i(t) = \frac{1}{f_i(t)}
   \]
 
   \item Energy‐weight, by computing each IMF’s average energy over the sample:
   \[
-    E_i = \frac{1}{T} \sum_{t=1}^{T} \bigl[c_i(t)\bigr]^2.
+    E_i = \frac{1}{T} \sum_{t=1}^{T} \bigl[c_i(t)\bigr]^2
   \]
 
   \item Weighted average period at time $t$:
   \[
     p^R(t)
-    = \frac{\sum_{i=1}^K E_i^R\,p_i^R(t)}{\sum_{i=1}^K E_i^R},
+    = \frac{1}{\sum_{i=1}^K E_i^R \sum_{i=1}^K E_i^R\,p_i^R(t)},
     \qquad
     p^V(t)
-    = \frac{\sum_{i=1}^K E_i^V\,p_i^V(t)}{\sum_{i=1}^K E_i^V}.
+    = \frac{1}{\sum_{i=1}^K E_i^V \sum_{i=1}^K E_i^V\,p_i^V(t)}
   \]
 
   \item Combine returns and vol by taking the max (as the paper does) and admit $\tau $ as your ideal window size :
   \[
-    \tau(t) \;=\; \max\bigl\{\,p^R(t),\,p^V(t)\bigr\}.
+    \tau(t) \;=\; \max\bigl\{\,p^R(t),\,p^V(t)\bigr\}
   \]
 \end{enumerate}
 
@@ -460,29 +460,27 @@ Another approach could be to
 \begin{enumerate}
   \item Compute the energie based on instantaneous amplitudes from each IMF via the Hilbert transform
   \[
-    e_R(t) \;=\; \sum_{i=1}^K \bigl\lvert \mathcal{H}\{c_i^R(t)\}\bigr\rvert^2,
-    \quad
-    e_V(t) \;=\; \sum_{i=1}^K \bigl\lvert \mathcal{H}\{c_i^V(t)\}\bigr\rvert^2.
+    E_i = \frac{1}{T} \sum_{t=1}^{T} \bigl[c_i(t)\bigr]^2
   \]
 
   \item Normalize and forme energy‐based weights :
   \[
-    w_R(t) \;=\; \frac{e_R(t)}{e_R(t) + e_V(t)},
+    w_R(t) \;=\; \frac{E_R(t)}{E_R(t) + E_V(t)},
     \quad
-    w_V(t) \;=\; \frac{e_V(t)}{e_R(t) + e_V(t)}% \;=\; 1 - w_R(t).
+    w_V(t) \;=\; \frac{E_V(t)}{E_R(t) + E_V(t)}% \;=\; 1 - w_R(t).
   \]
 
   \item Weighted average of periods :
   \[
-    P_{\mathrm{blend}}(t)
+    P(t)
       \;=\;
     w_R(t)\,P^R(t)\;+\;w_V(t)\,P^V(t),
   \]
   then round up to get an integer window length:
   \[
-    \tau_{\mathrm{blend}}(t)
+    \tau(t)
       \;=\;
-    \bigl\lceil P_{\mathrm{blend}}(t)\bigr\rceil.
+    \bigl\lceil P(t)\bigr\rceil.
   \]
 \end{enumerate}
 
@@ -539,6 +537,90 @@ R^{2} & 0.4224 & 0.4712 & 0.2427
 
 \bigskip
 No time to look the density metrics foracting idea
+
+
+
+
+\newpage
+\section*{Iteration 13}
+\begin{flushright}
+May 12, 2025
+\end{flushright}
+\hrule
+\vspace{0.2in}
+
+\subsection*{Weight EMD model}
+Write the model for each IMF instead of the global static one size window.
+  \[
+    E_i = \frac{1}{T} \bigl[c_i(t)\bigr]^2
+  \]
+
+  \bigskip
+
+  \[
+    P^R(t) = \frac{1}{E_i^R E_i^R\,P_i^R(t)},
+    \qquad
+    P^V(t) = \frac{1}{E_i^V E_i^V\,P_i^V(t)}
+  \]
+
+  \bigskip
+
+  \[
+    \tau(t) \;=\; \max\bigl\{\,P^R(t),\,P^V(t)\bigr\}
+  \]
+
+
+\subsection*{Forget gate modification to enable dynamic LSTM model}
+On way to approach this probleme could be to change the long term memory proportionnaly to the size of the window by weighting it.
+For exemple a deacresing window, retaining less information further back in the past would induced a long term memory value weighted less.
+The weights can be calculated by the ration of the changing size.\\
+
+
+The forget gate could change from :
+\[
+\mathbf{F}_t = \sigma(\mathbf{W}_f \cdot [\mathbf{H}_{t-1}, \mathbf{X}_t] + \mathbf{b}_f)
+\]
+
+To :
+
+%\[
+%\mathbf{F}_t = \sigma(\frac{\mathbf{S}_{t}}{\mathbf{S}_{t-1}}(\mathbf{W}_f \cdot [\mathbf{H}_{t-1}, \mathbf{X}_t] + \mathbf{b}_f))
+%\]
+
+
+\[
+\mathbf{F}_t = \sigma(\mathbf{W}_f \cdot [\frac{\mathbf{H}_{t-1}}{\frac{\mathbf{S}_{t-1}}{\mathbf{S}_{t}}}, \mathbf{X}_t] + \mathbf{b}_f)
+\]
+
+With $\mathbf{S}$ the size of the sliding window.
+\bigskip
+
+Test result : 
+
+\bigskip
+\[
+\begin{array}{ccc}
+Metric/Method & Base & Proposed \\
+\hline
+MSE & 0.003 & 0.056\\
+MAE & 0.040 & 0.038 \\
+MAPE & 63.31\% & 48.34\%  \\
+R^{2} & 0.457 & 0.3703 
+\end{array}
+\]
+
+\bigskip
+
+Regarding these result, it appear the proposed method can improve accuracy for most of the point, however, looking at the MSE and R² metric some few big misses are occuring. The process show improvement but need to be more stable to correctly predicte all values without big misses that dragues metrics the wrong way.
+
+
+
+
+\subsection*{Probability density model}
+Using density distribution of the volatility to improve forecasting. By giving a model the caracteristics of the probability density function, ($\sigma$, $\mu$, mediane, mode, etc...)
+
+
+
 
 
 \end{document}
