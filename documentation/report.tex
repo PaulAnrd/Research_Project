@@ -622,5 +622,71 @@ Using density distribution of the volatility to improve forecasting. By giving a
 
 
 
+\newpage
+\section*{Iteration 14}
+\begin{flushright}
+May 19, 2025
+\end{flushright}
+\hrule
+\vspace{0.2in}
+
+\subsection*{Forget gate}
+Controling the information retention by replacing with zero some memory information.
+
+Let's take the input vector :
+\[
+(seq\_lenght, batch\_size, input\_size)
+\]
+
+Where :
+\begin{itemize}
+  \item $seq\_lenght$ : the size of the time serie data point fed to the model (sliding window size)
+  \item $batch\_size$ : the size of the batch for each weight and bias update
+  \item $input\_size$ : number of feature fed to the model (in our case 1 as there is only volatility time serie for now)
+\end{itemize}
+
+\bigskip
+In order to dynamicly adjust the $seq\_lenght$ we need to set a $max\_seq\_lenght$ as we can decrease the vectore size but not increase it.
+
+For a given vectore :
+\[
+[1; 2; 3; 4; 5]
+\]
+
+
+Admit $max\_seq\_lenght = 3 $, let's say in a time step the ideal sliding window size is 2 we set $seq\_lenght = 2$ so the vector changes to :
+\[
+\begin{array}{cccc}
+1 & 2 & 3 & \text{seq} = 3 \\
+0 & 3 & 4 & \text{seq} = 2 \\
+3 & 4 & 5 & \text{seq} = 3 \\
+\end{array}
+\]
+
+
+\bigskip
+
+Test result of the implementation : 
+
+\bigskip
+\[
+\begin{array}{ccc}
+Metric/Method & Base & New \\
+\hline
+MSE & 0.003 & 0.003\\
+MAE & 0.040 & 0.049 \\
+MAPE & 60.76\% & 97.64\%  \\
+R^{2} & 0.465 & 0.320 
+\end{array}
+\]
+
+\bigskip
+
+
+We also have to keep in mind that the computing time of the new methode is much higher, (around 8 minutes here against 30 sec)
+
+
+
+
 
 \end{document}
