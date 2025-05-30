@@ -25,26 +25,40 @@ class LSTM:
 
     def forward(self, x):
         """
-        x: (seq_len, batch, input_dim)
-        Returns y_pred: (seq_len, batch, output_dim)
+        x: (seq_len, batch, input_dim+1)   # last channel is the 0/1 mask
         """
-        seq_len, B, _ = x.shape
-        h, c = np.zeros((B,self.hidden_dim)), np.zeros((B,self.hidden_dim))
+        seq_len, B, D1 = x.shape
+        #D = D1 - 1           # original feature dim
+        h = np.zeros((B, self.hidden_dim))
+        c = np.zeros((B, self.hidden_dim))
         self.cache = []
         y_seq = np.zeros((seq_len, B, self.output_dim))
+
         for t in range(seq_len):
-            xt = x[t]
-            z = np.hstack([h, xt])  # (B, D+H)
+            xt     = x[t]               # shape (B, D+1)
+            #data   = xt[:, :D]          # real features
+            mask = xt[:, -1].reshape(B,1)
+            #mask   = xt[:,  D:D+1]      # 0/1 mask, shape (B,1)
+
+            # **hard forget** where mask==0:
+            c = c * mask                # zeros out entire cell state when mask=0
+            h = h * mask                # likewise for hidden state
+
+            # proceed as before, but using only the real data channels
+            z = np.hstack([h, xt])    # shape (B, H + D)
             f = self.sigmoid(z.dot(self.Wf) + self.bf)
             i = self.sigmoid(z.dot(self.Wi) + self.bi)
             c_tilde = np.tanh(z.dot(self.Wc) + self.bc)
             c = f*c + i*c_tilde
             o = self.sigmoid(z.dot(self.Wo) + self.bo)
             h = o * np.tanh(c)
+
             y = h.dot(self.Wy) + self.by
             y_seq[t] = y
             self.cache.append((z, f, i, c_tilde, c, o, h))
+
         return y_seq
+
 
     def backward(self, x, dy):
         """

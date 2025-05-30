@@ -8,6 +8,7 @@
 \usepackage{booktabs} 
 \usepackage{hyperref}
 \usepackage{float} 
+\usepackage{multicol}
 \usepackage{enumitem}
 
 
@@ -684,6 +685,150 @@ R^{2} & 0.465 & 0.320
 
 
 We also have to keep in mind that the computing time of the new methode is much higher, (around 8 minutes here against 30 sec)
+
+
+
+
+
+
+
+\newpage
+\section*{Iteration 15}
+\begin{flushright}
+May 26, 2025
+\end{flushright}
+\hrule
+\vspace{0.2in}
+
+
+\subsection*{Index masking for LSTM model}
+Here the goal is to add a discreat value, either $[0;1]$ for now to allow the total forgetting of time serie value, in our case ie, the value associate with 0.\\
+For exemple : 
+\[
+\begin{array}{cccc}
+0 & 0 & 1 & 1\\
+3 & 4 & 5 & 6 \\
+\end{array}
+\]
+
+In that case, 3 and 4 will be forgotten by the model, while still being in a vector of size 4.\\
+
+\bigskip
+
+The input tensor now is a 4d matrix in order to add this information to each data point.
+\[
+(seq\_lenght, batch\_size, input\_size, index\_mask)
+\]
+
+After implementation :
+\bigskip
+\[
+\begin{array}{ccc}
+Metric/Method & Base & Masking \\
+\hline
+MSE & 0.003 & 0.002\\
+MAE & 0.040 & 0.038 \\
+MAPE & 60.76\% & 55.76\%  \\
+R^{2} & 0.465 & 0.462 
+\end{array}
+\]
+
+\bigskip
+
+
+\subsection*{Adding more features}
+
+List of the features added back to the volatility model :
+
+\begin{multicols}{2}
+\begin{itemize}
+  \item Present volatility
+  \item open price
+  \item close price
+  \item high
+  \item low
+  \item volume
+\end{itemize}
+\end{multicols}
+
+After implementation :
+\bigskip
+\[
+\begin{array}{ccc}
+Metric/Method & Base (vol) & With more features \\
+\hline
+MSE & 0.003 & 0.010\\
+MAE & 0.040 & 0.079 \\
+R^{2} & 0.322 & -0.996 
+\end{array}
+\]
+
+\bigskip
+
+From these results, it appear the volatility prediction actually gets worse when adding features. This can be due to the model being to small and not capturing the complex relationship, or, the features not being the most relevant (see correlation matrix).
+
+
+\subsection*{Probabilistic model}
+In addition of doing a regression on the volatility, also predict the parameters of the distribution, $(\mu, \sigma)$
+With target set to next day $(\mu, \sigma)$ results gives :
+\bigskip
+\[
+\begin{array}{ccc}
+Metric/Target & mu & sigma \\
+\hline
+MSE & 0.00007 & 0.0002\\
+MAE & 0.006 & 0.010 \\
+R^{2} & 0.727 & 0.822 
+\end{array}
+\]
+\bigskip
+
+  \begin{center}
+  \includegraphics[width=0.9\textwidth]{img/mu_sig_pred.png}
+  \end{center}
+
+
+
+
+\subsection*{Back to option price model}
+Model with input :
+\begin{verbatim}
+  df[['Open', 'volatility', 'High', 'Close', 'Volume', 'returns', 'EWMA_VM', 'yang_zhang']]
+\end{verbatim}
+
+\medskip
+\noindent
+One hidden layer of size 64, no EMD, sliding window size of 20.
+Result :
+\bigskip
+\[
+\begin{array}{cc}
+Metric/Method & Base\_option\_model \\
+\hline
+MSE & 0.017 \\
+MAE & 0.101 \\
+R^{2} & 0.182  
+\end{array}
+\]
+
+\bigskip
+
+
+\begin{center}
+\includegraphics[width=0.7\textwidth]{img/PVSA_opt_base_model.png}
+\end{center}
+
+
+
+
+
+\subsection*{Correlation matrix}
+Relationship between input features and target (option price) using the BS model.
+Sample of option prices can be ofund online, but for large samples, (days to week) they are pay to download
+
+  \begin{center}
+  \includegraphics[width=0.7\textwidth]{img/corr_matrix_opt.png}
+  \end{center}
 
 
 
