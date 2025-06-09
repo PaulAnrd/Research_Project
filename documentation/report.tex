@@ -826,11 +826,184 @@ R^{2} & 0.182
 Relationship between input features and target (option price) using the BS model.
 Sample of option prices can be ofund online, but for large samples, (days to week) they are pay to download
 
-  \begin{center}
-  \includegraphics[width=0.7\textwidth]{img/corr_matrix_opt.png}
-  \end{center}
+\begin{center}
+\includegraphics[width=0.7\textwidth]{img/corr_matrix_opt.png}
+\end{center}
 
 
+
+
+
+
+
+
+
+\newpage
+\section*{Iteration 16}
+\begin{flushright}
+June 02, 2025
+\end{flushright}
+\hrule
+\vspace{0.2in}
+
+%-------------------------------------------------------------
+\subsection*{Change $R^2$ formula}
+Bounding $R^2$ between 0 and 1 either by \begin{itemize}
+  \item Normalizing, the issue is that it change the scale, so a 0 before can become a 0.5.
+  \item Or, by taking \textbf{$max(0.0 ; R^2)$} the downside is the lost of the information "how bad the model is", in our case the model should stay above 0 and if it is 0, the information lost isn't to bad since we already know its really bad.
+\end{itemize}
+
+%\bigskip
+
+%-----------------------------------------------------------
+\subsection*{Try a bigger model for relationship complexity}
+From a model of size :
+\[
+[Input; 64; output]
+\]
+
+Let's try a model of size : 
+\[
+[Input; 256; 128; output]
+\]
+
+Result :
+
+\bigskip
+\[
+\begin{array}{ccc}
+Metric/Method & Base & Bigger model \\
+\hline
+MSE & 0.003 & 0.003\\
+MAE & 0.040 & 0.041 \\
+R^{2} & 0.322 & 0.309 
+\end{array}
+\]
+
+\bigskip
+
+%--------------------------------------------------------------
+\subsection*{Probabilistic model}
+
+
+\subsubsection*{Density funciton of $\sigma$}
+
+Calculating the sd of returns, then predicting the target means of the returns's sd and sd of the returns's sd.\\
+The result given by a [64;32] model are :
+\begin{center}
+\includegraphics[width=0.9\textwidth]{img/mu_sig_pred_sig.png}
+\end{center}
+
+\bigskip
+It appear the model have better result predicting the mean, wich isn't surprising, due to the more stable nature of this metric. However, for the sd, the results aren't as good as for the mean, we can observe a similarity between the returns's sd time serie and the retust given by the model, indicating harder prediction when volatility increases.
+
+\begin{center}
+\includegraphics[width=0.9\textwidth]{img/evo_rt_sd.png}
+\end{center}
+
+
+\bigskip
+
+\subsubsection*{Price model with bernoulli distribution}
+
+
+\begin{center}
+\includegraphics[width=0.7\textwidth]{img/dist_mvt.png}
+\end{center}
+
+This confusion matrix indicates the modle choose 1 or "up" a lot more than it should, This can be caused by the more important presence, of 1 in the distribution. However, this show that the model overestimate that number.
+
+\begin{center}
+\includegraphics[width=0.7\textwidth]{img/conf_mat_price.png}
+\end{center}
+
+\bigskip
+
+\subsubsection*{Confidence interval}
+Assuming a normal distribution of the returns we can calculating CI with :
+
+\[
+\mathrm{CI}_{1-\alpha}
+= \bar{x} \;\pm\; z_{1-\frac{\alpha}{2}}\;\frac{s}{\sqrt{n}}
+\]
+
+\[
+\bigl[
+\bar{x} - z_{1-\frac{\alpha}{2}}\;\tfrac{s}{\sqrt{n}}
+\;,\;
+\bar{x} + z_{1-\frac{\alpha}{2}}\;\tfrac{s}{\sqrt{n}}
+\bigr]
+\]
+
+
+Result to :
+\begin{verbatim}
+n         = 5369
+mean      = 0.5866
+std       = 0.0477
+95% CI    = [0.5854, 0.5879]
+\end{verbatim}
+
+
+\bigskip
+
+%-------------------------------------------------------------
+\subsection*{Adding more features}
+
+\bigskip
+\[
+\begin{array}{ccc}
+Metric/Method & Base & With more features \\
+\hline
+MSE & 0.003 & 0.007\\
+MAE & 0.040 & 0.067 \\
+R^{2} & 0.322 & 0.000 
+\end{array}
+\]
+\bigskip
+
+Adding more featured worsten the performances compare to a simple time serie. On explenation can be a noisy data that confuses the model compare to the volatility data that can be noisy but with only one feature dim, this can be easier for the model. Also we can assume other data type could be more relevant, for exemple macro-economic data like news analysis, but this it out of scope.\\
+
+Other type of numerical data could be relevant but adding too much features seems to lead to worse results.
+
+
+\bigskip
+
+%------------------------------------------------------------
+\subsection*{Option price model with enhance volatility model + benchmark}
+
+
+\bigskip
+\[
+\begin{array}{ccc}
+Metric/Method & Base & vol\_LSTM\_EMD \\
+\hline
+MSE & 0.022 & 0.017\\
+MAE & 0.121 & 0.102 \\
+R^{2} & 0.000 & 0.000 
+\end{array}
+\]
+\bigskip
+
+Around $20\%$ improvement of the MSE\\
+Same for MAE\\
+$R^2$ to investigate...
+\bigskip
+%----------------------------------------------------------
+\subsection*{Hyper-parameters tunning}
+
+
+\begin{verbatim}
+param_grid = {
+    'hidden_dim1': [128, 64],
+    'hidden_dim2': [64, 32],
+    'lr': [1e-3, 1e-4],
+    'weight_decay': [1e-5, 1e-6],
+    'dropout': [0.1, 0.2]
+}
+\end{verbatim}
+
+Not enough time yet to do the computation 
 
 
 
