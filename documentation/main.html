@@ -91,5 +91,23 @@
             click dataV.csv "../data/dataV.csv"
     </div>
 
+
+    
+    <div class="mermaid">
+        graph TB
+
+        Base_volatility-->Balck-Scholes
+        LSTM_volatility-->Balck-Scholes
+        EMD_volatility-->Balck-Scholes
+
+        Base_volatility-->RNN_option_pricing
+        LSTM_volatility-->RNN_option_pricing
+        EMD_volatility-->RNN_option_pricing
+
+        Balck-Scholes-->faire_price
+        RNN_option_pricing-->faire_price
+
+    </div>
+
 </body>
 </html>

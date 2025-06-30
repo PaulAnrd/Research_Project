@@ -1007,4 +1007,229 @@ Not enough time yet to do the computation
 
 
 
+
+
+
+
+
+
+\newpage
+\section*{Iteration 17}
+\begin{flushright}
+June 09, 2025
+\end{flushright}
+\hrule
+\vspace{0.2in}
+
+
+%\subsubsection*{$R^2$}
+\subsubsection*{Bigger model}
+\begin{itemize}
+
+  \item RandomizedSearchCV ( HL1 size, Batch size)
+  
+\begin{verbatim}
+param_dist = {
+    'module__hidden_dim1': randint(32, 256),
+    'module__hidden_dim2': randint(32, 128),
+    'batch_size': randint(32, 256),
+    'optimizer__lr': loguniform(1e-4, 1e-2),
+}
+\end{verbatim}
+  \item Training size
+  \item Loose function
+
+\end{itemize}
+
+\bigskip
+\subsubsection*{Probabilistic model}
+.expanding, dist of each days, or past ten days
+
+
+\bigskip
+\subsubsection*{Option pricing model benchmark}
+In progress : need to calculate the 50/50 expected value of winning, then compare BS VS EMD-LSMT + RNN option price
+
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+\newpage
+\section*{Iteration 18}
+\begin{flushright}
+June 16, 2025
+\end{flushright}
+\hrule
+\vspace{0.2in}
+
+\subsection*{Probabilistic model}
+
+Following a logic of a 10 days window to predict the next distribution of a 10 days period. For exemple days 0 to 9 are used as D1 to predict D2 ie the distibution of day 10 to 19.\\
+
+\bigskip
+
+Result :
+
+\begin{center}
+\includegraphics[width=0.8\textwidth]{img/prob_model_res.png}
+\end{center}
+\begin{verbatim}
+MSE : 0.0002
+\end{verbatim}
+
+
+
+
+\subsection*{Option model benchmark}
+After Louis Bachelier work, we consider a true fair price to be a nil expectation for both the seller and the buyer of the option.
+In that case, knowing histirical data it is possible to determine the true faire price of an option.\\
+Then training the model on it.\\
+
+\bigskip
+
+The goal is to compare to that reference the Black\-Scholes model, as well as volatility LSTM and volatility EMD\_LSTM.\\
+
+\bigskip
+%
+%\[
+%\begin{array}{ccc}
+%Metric/Method  & vol\_LSTM & vol\_EMD-LSTM \\
+%\hline
+%MSE  & 0.003 & 0 \\
+%MAE  & 0.043 & 0 \\
+%R^{2}  & 0.432 & 0
+%\end{array}
+%\]
+%\bigskip
+%
+
+
+\subsection*{Hyperparameters optimization}
+
+Best result found :
+\begin{verbatim}
+  Best parameters: {'batch_size': 225, 'module__hidden_dim1': 118, 'module__hidden_dim2': 47, 'optimizer__lr': 0.0004804045151253058}
+
+Test MSE : 0.003
+Test MAE : 0.048
+Test R²  : 0.353
+\end{verbatim}
+
+
+
+
+
+\subsection*{Compression}
+
+
+\[
+\begin{array}{ccc}
+Metric/Method & Base & Compressed\_model \\
+\hline
+MSE & 0.003 & 0.003\\
+MAE & 0.039 & 0.043 \\
+R^{2} & 0.430 & 0.432 
+\end{array}
+\]
+\bigskip
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+\newpage
+\section*{Iteration 19}
+\begin{flushright}
+June 23, 2025
+\end{flushright}
+\hrule
+\vspace{0.2in}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%         MORE MATHS DETAILS
+
+\subsection*{Probabilistic model}
+11 days pred with 10 days rolling window
+$p \sim \mathcal{N}(\mu, \sigma)$
+\begin{itemize}
+  \item $\mu$ 11th day returns based on the last 10 days returns distribution
+  \item $\sigma$ LSTM part with volatility prediction
+\end{itemize}
+
+
+
+\begin{center}
+\includegraphics[width=0.6\textwidth]{img/plot_prob_model_mean.png}
+\end{center}
+
+Calculate a confidence interval to gain an option price distibution.
+
+
+\subsection*{Option pricing model}
+
+The benchmarking of the option pricing model with different methode and volatility estimators can be represented as follow :
+
+\begin{center}
+\includegraphics[width=0.8\textwidth]{img/faire_price_calc.png}
+\end{center}
+
+After testing each combinations we get :
+
+\[
+\begin{array}{ccccccc}
+Metric/Method & BS\_Base & BS\_LSTM\_vol & BS\_EMD\_vol & RNN\_base & RNN\_LSTM\_vol & RNN\_EMD\_vol \\
+\hline
+MSE & 0.41 & 0.71 & 1.24 & 0.007 & 0.017 & 0.003 \\
+MAE & 0.64 & 0.82 & 1.10 & 0.05 & 0.08 & 0.04 \\
+R^{2} & 0.99 & 0.63 & 0.48 & 0.89 & 0.76 & 0.94
+\end{array}
+\]
+\bigskip
+
+Ploting all these metrics on a bar graph give :
+
+\begin{center}
+\includegraphics[width=0.8\textwidth]{img/model_comp_bar.png}
+\end{center}
+
+Comparing predicted vs actual value of these different methodes :
+
+\begin{center}
+\includegraphics[width=0.9\textwidth]{img/model_comp_sca.png}
+\end{center}
+
+Among the RRN methodes, we can see that the EMD+LSTM volatility one is the best performing.
+Also, among the Black-Scholes, we can observe a bias, due the the faire price calculation methode.
+
+
+
+\subsection*{Hyper parameters optimization}
+
+HL1 : 100\\
+HL2 : 48\\
+Batch size : 152\\
+lr : 0.0005
+
+
+
+
+
+
+
+
+
+
+
+
 \end{document}
